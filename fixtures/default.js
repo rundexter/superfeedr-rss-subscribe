@@ -1,6 +1,6 @@
-var _ = require('lodash')
-    , env = require('./env')
-    ;
+var _   = require('lodash')
+  , env = require('./env')
+;
 
 module.exports = _.merge({
     /*
@@ -62,8 +62,8 @@ module.exports = _.merge({
              * You should update this section with some test input for testing your module
              */
             input: {
-                //Replace VAR1 with the name of an expected input, and add more inputs as needed.
-                VAR1: 'foo'
+                topic: 'http://push-pub.appspot.com/feed',
+                callback: 'http://requestb.in/1n3d3hj1'
             }
         }
     }

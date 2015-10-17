@@ -1,3 +1,6 @@
+var request = require('superagent')
+;
+
 module.exports = {
     /**
      * The main entry point for the Dexter module
@@ -6,8 +9,35 @@ module.exports = {
      * @param {AppData} dexter Container for all data used in this workflow.
      */
     run: function(step, dexter) {
-        var results = { foo: 'bar' };
-        //Call this.complete with the module's output.  If there's an error, call this.fail(message) instead.
-        this.complete(results);
+        var urls = step.input('topic')
+          , username = step.input('username').first()
+          , token    = step.input('token').first()
+          , callback = step.input('callback').first()
+        ; 
+
+        if(!urls.length || !urls.first()) this.fail('Topic required.');
+        if(!username) this.fail('Username required.');
+        if(!token) this.fail('Token required.');
+        if(!callback) this.fail('Callback required.');
+
+        Array.prototype.slice.apply(urls).forEach(function(url) {
+            this.log('Subscribing to ' + url); 
+
+            request.post('https://push.superfeedr.com')
+               .send({
+                    "hub.mode"     : 'subscribe',
+                    "hub.topic"    : url, 
+                    "hub.callback" : callback,
+                    "format"       : "json",
+                    "retrieve"     : true
+               })
+               .accept('application/json')
+               .auth(username, token)
+               .end(function(err, res) {
+                    this.log({ status: res.status, body: res.body, headers: res.headers});
+                    if(err) return this.fail(err.stack);
+                    this.complete(res.body);
+               }.bind(this));
+        }.bind(this));
     }
 };
