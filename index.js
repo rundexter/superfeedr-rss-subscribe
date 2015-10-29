@@ -21,23 +21,26 @@ module.exports = {
         if(!callback) this.fail('Callback required.');
 
         Array.prototype.slice.apply(urls).forEach(function(url) {
-            this.log('Subscribing to ' + url); 
+            //check for comma delimited
+            url.split(',').forEach(function(url) {
+                this.log('Subscribing to ' + url); 
 
-            request.post('https://push.superfeedr.com')
-               .send({
-                    "hub.mode"     : 'subscribe',
-                    "hub.topic"    : url, 
-                    "hub.callback" : callback,
-                    "format"       : "json",
-                    "retrieve"     : true
-               })
-               .accept('application/json')
-               .auth(username, token)
-               .end(function(err, res) {
-                    this.log({ status: res.status, body: res.body, headers: res.headers});
-                    if(err) return this.fail(err.stack);
-                    this.complete(res.body);
-               }.bind(this));
+                request.post('https://push.superfeedr.com')
+                   .send({
+                        "hub.mode"     : 'subscribe',
+                        "hub.topic"    : url, 
+                        "hub.callback" : callback,
+                        "format"       : "json",
+                        "retrieve"     : true
+                   })
+                   .accept('application/json')
+                   .auth(username, token)
+                   .end(function(err, res) {
+                        this.log({ status: res.status, body: res.body, headers: res.headers});
+                        if(err) return this.fail(err.stack);
+                        this.complete(res.body);
+                   }.bind(this));
+           }.bind(this));
         }.bind(this));
     }
 };
